@@ -1,54 +1,80 @@
 // A templated singly linked list
 #include "LinkedList.h"
 
-template<class T>
-TLL::LinkedList<T>::LinkedList(const LinkedList & LL)
+using namespace TLL;
+
+LinkedList::~LinkedList()
 {
-	const ListElement<T> *curr = LL._head;
+	std::cout << "Destructor called  for @" << this << std::endl; 
+	deleteList();
+}
 
-	// If Linked List is empty
-	if (isEmpty() && temp != nullptr) {
-		_head = new ListElement<T>(curr->getValue());
-		curr = curr->getNext();
-	}
+LinkedList::LinkedList(const LinkedList & ListToBeCopied)
+{
+	std::cout << "Copy constructor called for @ " << this <<  std::endl;
 
-	ListElement<T> *newNode = nullptr;
-	while (curr) {
-		newNode = new ListElement<T>(curr->getValue());
+	ListElement *copy = ListToBeCopied._head;
+	_head = new ListElement(copy->getValue());
+	copy = copy->getNext();
+	
+	ListElement *curr = _head;
+
+	// copy List Elements Until we reach the end of the 
+	// List to be copied
+	while (copy != nullptr) {
+		curr->setNext(new ListElement(copy->getValue()));
+		copy = copy->getNext();
 		curr = curr->getNext();
 	}
 }
 
-/*
-template<class T>
-LinkedList& TLL::LinkedList<T>::operator=(LinkedList<T> byValList)
+LinkedList& LinkedList::operator=(const LinkedList &ListToBeAssigned)
 {
-	std::swap(_head, byValList.head);
+	std::cout << "Copy assignement operator called for @ " << this << std::endl;
+
+	if (&ListToBeAssigned != this) {
+		// Free The memory held by this
+		deleteList();
+
+		ListElement *copy = ListToBeAssigned._head;
+		if (copy != nullptr) {
+			_head = new ListElement(copy->getValue());
+			ListElement *curr = _head;
+			copy = copy->getNext();
+
+			// copy List Elements Until we reach the end of the 
+			// List to be copied
+			while (copy != nullptr) {
+				curr->setNext(new ListElement(copy->getValue()));
+				copy = copy->getNext();
+				curr = curr->getNext();
+			}
+		}
+
+	} 
+
 	return *this;
 }
-*/
 
-template<class T>
-bool TLL::LinkedList<T>::insertAtHead(T data)
+
+bool LinkedList::insertAtHead(int data)
 {
-	ListElement <T> *newElement = new ListElement<T>(data);
+	ListElement  *newElement = new ListElement(data);
 	if (newElement == nullptr) return false;
 	newElement->setNext(_head);
 	_head = newElement;
 	return true;
 }
 
-template<class T>
-bool TLL::LinkedList<T>::insertAtHead(ListElement<T>* nodeToInsert)
+bool LinkedList::insertAtHead(ListElement * nodeToInsert)
 {
 	if (nodeToInsert == nullptr) return false;
 	return insertAtHead(nodeToInsert->getValue());
 }
 
-template<class T>
-bool TLL::LinkedList<T>::insertAtEnd(T data)
+bool LinkedList::insertAtEnd(int data)
 {
-	ListElement<T> *nodeToInsert (data);
+	ListElement *nodeToInsert = new ListElement(data);
 	if (nodeToInsert == nullptr) return false;
 
 	// head is null
@@ -57,27 +83,52 @@ bool TLL::LinkedList<T>::insertAtEnd(T data)
 		return true;
 	}
 
-	ListElement<T> *curr = _head;
+	ListElement *curr = _head;
 	// iterate to the end 
 	while (curr != nullptr && curr->getNext() != nullptr) {
 		curr = curr->getNext();
 	}
 
 	curr->setNext(nodeToInsert);
-	return true;;
+	return true;
 }
 
-template<class T>
-bool TLL::LinkedList<T>::insertAtEnd(ListElement<T>* nodeToInsert)
+bool LinkedList::insertAtEnd(ListElement *nodeToInsert)
 {
 	if (nodeToInsert == nullptr) return false;
 	return insertAtEnd(nodeToInsert->getValue());
 }
 
-template<class T>
-ListElement<T>* TLL::LinkedList<T>::find(T data)
+bool LinkedList::insertAtPos(int data, int pos)
 {
-	const ListElement<T> *temp = head;
+	ListElement *nodeToInsert = new ListElement(data);
+	if (nodeToInsert == nullptr) return false;
+
+	// If list is empty and position is not the 
+	// begining of the list return false. 
+	if (isEmpty() && pos != 0) {
+		return false;
+	}
+
+	ListElement *curr = _head;
+	// iterate until we are at pos - 1
+	while (curr != nullptr && pos != 1) {
+		curr = curr->getNext();
+		pos--;
+	}
+
+	// insert the ListElement
+	if (pos == 1) {
+		nodeToInsert->setNext(curr->getNext());
+		curr->setNext(nodeToInsert);
+		return true;
+	}
+	return false;
+}
+
+ListElement * LinkedList::find(const int data)
+{
+	ListElement *temp = _head;
 	if (temp == nullptr) return temp;
 
 	while (temp != nullptr && temp->getValue() != data) {
@@ -86,37 +137,48 @@ ListElement<T>* TLL::LinkedList<T>::find(T data)
 	return temp;
 }
 
-template<class T>
-ListElement<T>* TLL::LinkedList<T>::find(T data)
+ListElement * LinkedList::find(ListElement *le)
 {
-	return nullptr;
+	if (le == nullptr) return nullptr;
+	return find(le->getValue());
 }
 
-template<class T>
-ListElement * TLL::LinkedList<T>::find(const ListElement<T> &le)
+ListElement * LinkedList::getElementAtPos(int pos)
 {
-	return find(new ListElement<T>(le.getValue());
+	if (isEmpty() && pos != 0) {
+		return nullptr;
+	}
+
+	ListElement *curr = _head;
+	// iterate until we are at pos = 0
+	while (curr != nullptr && pos != 0) {
+		curr = curr->getNext();
+		pos--;
+	}
+
+	// pos != 0 mean's we reached end of the list
+	return (pos ? curr : nullptr);
 }
 
-template<class T>
-bool TLL::LinkedList<T>::deleteElement(ListElement<T> *deleteMe)
+bool LinkedList::deleteElement(ListElement *deleteMe)
 {
-	if (deleteMe) return false;
+	if (deleteMe == nullptr) return false;
 
 
-	ListElement<T> *temp = _head;
+	ListElement *temp = _head;
 
 	// check if the element is the head
 	if (deleteMe == _head) {
 		_head = temp->getNext();
-		delte temp;
+		delete temp;
 		temp = nullptr;
 		return true;
 	}
 
 	while (temp != nullptr) {
-		if (temp->getNext() == deleteMe) {
-			temp->setNext(deleteMe->getNext());
+		if (temp->getNext() != nullptr && 
+			temp->getNext()->getValue() == deleteMe->getValue()) {
+			temp->setNext(temp->getNext()->getNext());
 			delete deleteMe;
 			deleteMe = nullptr;
 			return true;
@@ -127,19 +189,17 @@ bool TLL::LinkedList<T>::deleteElement(ListElement<T> *deleteMe)
 	return false;
 }
 
-template<class T>
-bool TLL::LinkedList<T>::deleteElement(T data)
+bool LinkedList::deleteElement(int data)
 {
-	return deleteElement(new ListElement<T>(data));
+	return deleteElement(new ListElement(data));
 }
 
-template<class T>
-void TLL::LinkedList<T>::deleteList()
+void LinkedList::deleteList()
 {
 	if (_head == nullptr) return;
 
-	ListElement<T> *elementToDel = _head;
-	ListElement<T>	*next = nullptr;
+	ListElement *elementToDel = _head;
+	ListElement	*next = nullptr;
 	while (elementToDel != nullptr) {
 		next = elementToDel->getNext();
 		delete elementToDel;
@@ -148,24 +208,26 @@ void TLL::LinkedList<T>::deleteList()
 	_head = nullptr;
 }
 
-template<class T>
-void TLL::LinkedList<T>::display()
+void LinkedList::display()
 {
 	if (_head == nullptr) return;
-	const ListElement<T> *temp = _head;
+	ListElement *temp = _head;
 	while (temp != nullptr) {
-		cout << temp->getValue() << "->";
+		std::cout << temp->getValue();
+		temp = temp->getNext();
+		if (temp != nullptr) {
+			std::cout << "->";
+		}
 	}
-	cout << endl << < endl;
+	std::cout << std::endl << std::endl;
 }
 
-template<class T>
-int TLL::LinkedList<T>::getSize()
+int LinkedList::getSize()
 {
 	int size = 0;
 	if (!isEmpty()) {
-		const ListElement<T> *curr = _head;
-		while (curr->getNext() != nullptr) {
+		ListElement *curr = _head;
+		while (curr != nullptr) {
 			size++;
 			curr = curr->getNext();
 		}
@@ -174,15 +236,15 @@ int TLL::LinkedList<T>::getSize()
 	return size;
 }
 
-template<class T>
-bool TLL::LinkedList<T>::compareList(const LinkedList<T> *list1, const LinkedList<T> * list2)
+bool LinkedList::compareList(const LinkedList *list1, const LinkedList * list2)
 {
-	if (head1 == nullptr || head2 == nullptr) return false;
+	if (list1 == nullptr || list2 == nullptr) return false;
 
-	const ListElement<T> *temp1 = list1._head;;
-	const ListElement<T> *temp2 = list2._head;
+	ListElement *temp1 = list1->_head;;
+	ListElement *temp2 = list2->_head;
 
 	// compare the data of each element
+
 	while (temp1 != nullptr && temp2 != nullptr) {
 		if (temp1->getValue() != temp2->getValue()) return false;
 		temp1 = temp1->getNext();
@@ -195,25 +257,103 @@ bool TLL::LinkedList<T>::compareList(const LinkedList<T> *list1, const LinkedLis
 	return true;
 }
 
-static int TLL::testLinkedList() {
+void LinkedList::reverseList()
+{
+	if (isEmpty()) return;
+
+	ListElement *curr = _head;
+	ListElement *prev = curr->getNext();
+	ListElement *next = nullptr;
+
+	// Iterate until we reach to the end of the list
+	while (prev != nullptr) {
+		curr->setNext(next);
+		next = curr;
+		curr = prev;
+		prev = prev->getNext();
+	}
+	curr->setNext(next);
+
+	// Set head to the current element
+	_head = curr;
+}
+
+ListElement* LinkedList::recursiveReverseList(ListElement *currElement, ListElement *nextElement)
+{
+	if (currElement->getNext() == nullptr) {
+		currElement->setNext(nextElement);
+		_head = currElement;
+		return currElement;
+	} else {
+		ListElement* temp = currElement->getNext();
+		currElement->setNext(nextElement);
+		return recursiveReverseList(temp, currElement);
+	}
+}
+
+
+int LinkedList::testLinkedList() {
 	using namespace std;
-	LinkedList<int> LL1(new ListElement<int>(7));
-	LL1.insertAtEnd(1);
-	LL1.insertAtEnd(6);
-	LL1.insertAtEnd(5);
-	LL1.insertAtEnd(4);
+	{
+		LinkedList LL1(new ListElement(7));
+		LL1.insertAtEnd(1);
+		LL1.insertAtEnd(6);
+		LL1.insertAtEnd(5);
+		LL1.insertAtEnd(4);
+		cout << "L1 is empty :: "<< LL1.isEmpty()<< "L1 size : " << LL1.getSize() << endl;
+		LL1.display();
+		LL1.insertAtHead(10);
+		cout << "After insert 10 at head L1 size : " << LL1.getSize() << endl;
+		LL1.display();
 
-	LinkedList<int> LL2(new ListElement<int>(5));
-	LL2.insertAtEnd(9);
-	LL2.insertAtEnd(2);
+		LL1.insertAtEnd(20);
+		cout << "After insert at end L1 size : " << LL1.getSize() << endl;
+		LL1.display();
 
-	//LinkedList<int> LL = LL1.sumLists(LL1, LL2);
-	LL1.display();
-	LL2.display();
-	LL1 = LL2;
-	LL1.display();
-	LL2.display();
+		LL1.deleteElement(new ListElement(6));
+		cout << "after delete 6 L1 size : " << LL1.getSize() << endl;
+		LL1.display();
+	
+		ListElement *le = LL1.find(6);
+		if (le) {
+			cout << "L1 find :" << le->getValue() << endl;
+		} else {
+			cout << "not found " << endl;
+		}
 
+		LL1.recursiveReverseList();
+		cout << "L1 after recursive reverse : size:  " << LL1.getSize() << endl;
+		LL1.display();
+
+		LL1.reverseList();
+		cout << "L1 after  reverse : size:  " << LL1.getSize() << endl;
+		LL1.display();
+
+		LinkedList LL2(new ListElement(5));
+		LL2.insertAtEnd(9);
+		LL2.insertAtEnd(2);
+
+		cout << "L2 size : " << LL2.getSize() << endl;
+		//LinkedList<int> LL = LL1.sumLists(LL1, LL2);
+		LL2.display();
+		LL1 = LL2;
+
+		cout << "are list same: " << LinkedList::compareList(&LL1, &LL2) << endl;
+		cout << "L1 size : " << LL1.getSize() << endl;
+		cout << "L2 size : " << LL1.getSize() << endl;
+		LL1.display();
+		LL2.display();
+
+		LinkedList LL3 = LL2;
+		LL3.display();
+		cout << "are LL2 & LL3 same: " << LinkedList::compareList(&LL2, &LL3) << endl;
+
+		LL3.reverseList();
+		cout << "L3 after reverse : size:  " << LL3.getSize() <<  endl;
+		LL3.display();
+
+	}
+	getchar();
 
 	return 0;
 }

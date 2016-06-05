@@ -1,54 +1,67 @@
 #pragma once
+#include<iostream>
 namespace TLL {
-	int testLinkedList();
-	template <class T>
 	class ListElement {
 	public:
-		ListElement<T>(const T &data) : _data(data), _next(nullptr) {}
-		ListElement<T>(const ListElement<T> & copyNode) : _data(copyNode.data), _next(nullptr) {}
+		ListElement(const int data) : _data(data), _next(nullptr) {}
+		ListElement(const ListElement & copyNode) : _data(copyNode._data), _next(nullptr) {}
 
 		~ListElement() {}
 
-		ListElement getNext() { return _next; }
-		void		setNext(ListElement next) { _next = next; }
-		void	    setValue(const T &data) { _data = data; }
-		T			getValue() { return _data; }
+		ListElement* getNext() { return _next; }
+		void		setNext(ListElement *next) { _next = next; }
+		void	    setValue(const int &data) { _data = data; }
+		int			getValue() { return _data; }
 
 	private:
 		//ListElement<T>& operator=(const ListElement<T>&);
-		ListElement<T> *_next;
-		T			   _data;
+		ListElement *_next;
+		int			 _data;
 	};
 
-	template<class T>
 	class LinkedList
 	{
 	public:
-		LinkedList() : _head(nullptr) {}
-		LinkedList(ListElement<T> *newElement) : _head(newElement) {}
-		~LinkedList() { deleteList() };
+		LinkedList() : _head(nullptr) { std::cout << "Default Constructor called  for @" << this << std::endl; }
+		LinkedList(ListElement *newElement) : _head(newElement) { std::cout << "Constructor called  for @" << this << std::endl; }
+		~LinkedList();
 		LinkedList(const LinkedList& LL);
-		//LinkedList& operator=(LinkedList byValList);
+		LinkedList& operator=(const LinkedList &LL);
 
-		// List Operations
-		bool		insertAtHead(T data);
-		bool		insertAtHead(ListElement<T> *nodeToInsert);
-		bool		insertAtEnd(T data);
-		bool		insertAtEnd(ListElement<T> *nodeToInsert);
-		//bool		insertAtPos(ListElement **head, int data, int pos);
+		// Insert Operations
+		bool		insertAtHead(int data);
+		bool		insertAtHead(ListElement *nodeToInsert);
+		bool		insertAtEnd(int data);
+		bool		insertAtEnd(ListElement *nodeToInsert);
+		bool		insertAtPos(int data, int pos);
 
-		ListElement<T> *find(T data);
-		ListElement<T> *find(const ListElement<T> &le);
-		bool		deleteElement(ListElement<T> *deleteMe);
-		bool		deleteElement(T data);
+		// Search operations
+		ListElement *find(const int data);
+		ListElement *find(ListElement *le);
+		ListElement *getElementAtPos(int pos);
+
+		// Delete Operations
+		bool		deleteElement(ListElement *deleteMe);
+		bool		deleteElement(int data);
 		void		deleteList();
+
+		// Misc Operations
 		void		display();
 		int			getSize();
-		int		    isEmpty() { return _head == nullptr };
-		bool		compareList(const LinkedList<T> *list1, const LinkedList<T> *list2);
+		void		setHead(ListElement *le) { _head = le; };
+		int		    isEmpty() const { return _head == nullptr; };
+		static bool		compareList(const LinkedList *list1, const LinkedList *list2);
 
+		void		reverseList();
+		ListElement* recursiveReverseList() { return recursiveReverseList(_head, nullptr); };
+		
+
+
+		// test
+		static	int testLinkedList();
 	private:
-		ListElement<T> *_head;
+		ListElement* recursiveReverseList(ListElement *currElement, ListElement *nextElement);
+		ListElement *_head;
 
 	};
 };
